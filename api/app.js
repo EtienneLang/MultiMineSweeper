@@ -4,6 +4,7 @@ const app = express();
 
 const port = 3000;
 
+const clients = {};
 
 app.listen(port, () => {
     console.log(`Le serveur écoute sur le port ${port}`)
@@ -27,6 +28,16 @@ wsServer.on('request', request => {
     })
 
     const clientId = guid();
+    clients[clientId] = {
+        "connection" : connection
+    }
+
+    const payLoad = {
+        "action" : "connect",
+        "clientId" : clientId
+    }
+    //Renvoi du clientId au client lors de la connexion
+    connection.send(JSON.stringify(payLoad));
 })
 
 const guid=()=> {

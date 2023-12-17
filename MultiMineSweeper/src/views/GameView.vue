@@ -80,6 +80,36 @@ export default {
           } else {
             cell.onclick = () => {
               this.ClickOpenSpace(i, j)
+              for (let i = 0; i < 10; i++) {
+                for (let j = 0; j < 10; j++) {
+                  if (this.gameState[i][j].visited) {
+                    if (i > 0 && j > 0) {
+                      this.ShowNumber(i - 1, j - 1, this.gameState[i - 1][j - 1].id)
+                    }
+                    if (i > 0) {
+                      this.ShowNumber(i - 1, j, this.gameState[i - 1][j].id)
+                    }
+                    if (i > 0 && j < 9) {
+                      this.ShowNumber(i - 1, j + 1, this.gameState[i - 1][j + 1].id)
+                    }
+                    if (j > 0) {
+                      this.ShowNumber(i, j - 1, this.gameState[i][j - 1].id)
+                    }
+                    if (j < 9) {
+                      this.ShowNumber(i, j + 1, this.gameState[i][j + 1].id)
+                    }
+                    if (i < 9 && j > 0) {
+                      this.ShowNumber(i + 1, j - 1, this.gameState[i + 1][j - 1].id)
+                    }
+                    if (i < 9) {
+                      this.ShowNumber(i + 1, j, this.gameState[i + 1][j].id)
+                    }
+                    if (i < 9 && j < 9) {
+                      this.ShowNumber(i + 1, j + 1, this.gameState[i + 1][j + 1].id)
+                    }
+                  }
+                }
+              }
             }
           }
           cell.style.backgroundImage = `url(${ImgCaseNonClique})`
@@ -97,7 +127,6 @@ export default {
         for (let j = 0; j < 10; j++) {
           gameState[i][j] = {
             isMine: false,
-            isClique: false,
             isFlag: false,
             isNumber: false,
             visited: false,
@@ -158,24 +187,78 @@ export default {
       }
     },
     ClickOpenSpace(row, col) {
-      if ((row >= 0 && row <= 9) && (col >= 0 && col <= 9)) {
+      if (row >= 0 && row <= 9 && col >= 0 && col <= 9) {
         console.log(col)
         if (this.gameState[row][col].visited) {
           return
         }
-        this.gameState[row][col].visited = true
-        if (!this.gameState[row][col].isNumber) {
-          document.getElementById(this.gameState[row][col].id).style.backgroundImage = `url(${ImgCaseClique})`
-          // console.log(this.gameState[row][col].id)
+        if (!this.gameState[row][col].isNumber && !this.gameState[row][col].isMine) {
+          this.gameState[row][col].visited = true
+          document.getElementById(this.gameState[row][col].id).style.backgroundImage =
+            `url(${ImgCaseClique})`
           for (let i = -1; i <= 1; i++) {
             for (let j = -1; j <= 1; j++) {
               this.ClickOpenSpace(row + i, col + j)
             }
           }
         }
+
+        // for (let i = 0; i < 10; i++) {
+        //   for (let j = 0; j < 10; j++) {
+        //     if (this.gameState[i][j].visited) {
+        //       if (i > 0 && j > 0) {
+        //         ShowNumber(i - 1, j - 1, this.gameState[i - 1][j - 1].id)
+        //       }
+        //       if (i > 0) {
+        //         ShowNumber(i - 1, j, this.gameState[i - 1][j].id)
+        //       }
+        //       if (i > 0 && j < 9) {
+        //         ShowNumber(i - 1, j + 1, this.gameState[i - 1][j + 1].id)
+        //       }
+        //       if (j > 0) {
+        //         ShowNumber(i, j - 1, this.gameState[i][j - 1].id)
+        //       }
+        //       if (j < 9) {
+        //         ShowNumber(i, j + 1, this.gameState[i][j + 1].id)
+        //       }
+        //       if (i < 9 && j > 0) {
+        //         ShowNumber(i + 1, j - 1, this.gameState[i + 1][j - 1].id)
+        //       }
+        //       if (i < 9) {
+        //         ShowNumber(i + 1, j, this.gameState[i + 1][j].id)
+        //       }
+        //       if (i < 9 && j < 9) {
+        //         ShowNumber(i + 1, j + 1, this.gameState[i + 1][j + 1].id)
+        //       }
+        //     }
+        //   }
+        // }
       }
       return
     },
+    ShowNumber(row, col, id) {
+      let cell = document.getElementById(id)
+      switch (this.gameState[row][col].number) {
+        case 1:
+          cell.style.backgroundImage = `url(${ImgCase1})`
+          break
+        case 2:
+          cell.style.backgroundImage = `url(${ImgCase2})`
+          break
+        case 3:
+          cell.style.backgroundImage = `url(${ImgCase3})`
+          break
+        case 4:
+          cell.style.backgroundImage = `url(${ImgCase4})`
+          break
+        case 5:
+          cell.style.backgroundImage = `url(${ImgCase5})`
+          break
+        case 6:
+          cell.style.backgroundImage = `url(${ImgCase6})`
+          break
+      }
+    }
   }
 }
 </script>

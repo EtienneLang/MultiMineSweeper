@@ -44,8 +44,7 @@ export default {
             cell.onclick = function () {
               cell.style.backgroundImage = `url(${ImgMine})`
             }
-          } 
-          else if (this.gameState[i][j].isNumber) {
+          } else if (this.gameState[i][j].isNumber) {
             switch (this.gameState[i][j].number) {
               case 1:
                 cell.onclick = function () {
@@ -78,10 +77,9 @@ export default {
                 }
                 break
             }
-          } 
-          else {
-            cell.onclick = function () {
-              cell.style.backgroundImage = `url(${ImgCaseClique})`
+          } else {
+            cell.onclick = () => {
+              this.ClickOpenSpace(i, j)
             }
           }
           cell.style.backgroundImage = `url(${ImgCaseNonClique})`
@@ -93,6 +91,7 @@ export default {
     },
     CreateGameState() {
       let gameState = {}
+      let index = 0
       for (let i = 0; i < 10; i++) {
         gameState[i] = {}
         for (let j = 0; j < 10; j++) {
@@ -101,8 +100,11 @@ export default {
             isClique: false,
             isFlag: false,
             isNumber: false,
+            visited: false,
+            id: index,
             number: 0
           }
+          index++
         }
       }
       this.gameState = gameState
@@ -154,7 +156,26 @@ export default {
           }
         }
       }
-    }
+    },
+    ClickOpenSpace(row, col) {
+      if ((row >= 0 && row <= 9) && (col >= 0 && col <= 9)) {
+        console.log(col)
+        if (this.gameState[row][col].visited) {
+          return
+        }
+        this.gameState[row][col].visited = true
+        if (!this.gameState[row][col].isNumber) {
+          document.getElementById(this.gameState[row][col].id).style.backgroundImage = `url(${ImgCaseClique})`
+          // console.log(this.gameState[row][col].id)
+          for (let i = -1; i <= 1; i++) {
+            for (let j = -1; j <= 1; j++) {
+              this.ClickOpenSpace(row + i, col + j)
+            }
+          }
+        }
+      }
+      return
+    },
   }
 }
 </script>

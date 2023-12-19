@@ -1,5 +1,16 @@
 <template>
   <main>
+    <form>
+      <input ref="largeur" type="number" placeholder="Largeur du tableau" />
+      <input ref="hauteur" type="number" placeholder="Hauteur du tableau" />
+    </form>
+    <button @click="CreateGame">Create game</button>
+
+    <form>
+      <input ref="gameId" type="text" placeholder="GameId"/>
+
+    </form>
+    <button @click="JoinGame">Join game</button>
     <div class="container">
       <div id="grid"></div>
     </div>
@@ -18,11 +29,31 @@ import ImgCase5 from '../assets/img/Minesweeper_5.svg'
 import ImgCase6 from '../assets/img/Minesweeper_6.svg'
 
 const MINES_NUMBER = 10
+
+let clientId = null;
+let gameId = null;
+let ws = new WebSocket('ws://localhost:3000');
+
 export default {
   name: 'GameView',
   data() {
     return {
       gameState: {}
+    }
+  },
+  created() {
+    ws.onmessage = message => {
+    
+      const response = JSON.parse(message.data)
+      console.log(response)
+      if (response.action === 'connect') {
+        clientId = response.clientId
+        console.log('Connected to server with id: ' + clientId)
+      }
+      if (response.action === 'create') {
+        gameId = response.game.gameId
+        console.log('Game created ' + response.game.gameId + 'with length ' + response.game.largeur + ' and height ' + response.game.hauteur)
+      }
     }
   },
   mounted() {
@@ -32,6 +63,28 @@ export default {
     this.CreateGrid()
   },
   methods: {
+    CreateGame(e) {
+      const payload = {
+        action: 'create',
+        clientId: clientId,
+        largeur: this.$refs.largeur.value,
+        hauteur: this.$refs.hauteur.value
+      }
+      console.log(JSON.stringify(payload))
+      ws.send(JSON.stringify(payload))
+    },
+    JoinGame(e) {
+      console.log(clientId)
+      if (!gameId) {
+        gameId = this.$refs.gameId.value
+      }
+      const payload = {
+        action: 'join',
+        clientId: clientId,
+        gameId: gameId
+      }
+      ws.send(JSON.stringify(payload))
+    },
     CreateGrid() {
       let grid = document.getElementById('grid')
       let index = 0
@@ -121,6 +174,9 @@ export default {
     },
     CreateGameState() {
       let gameState = {}
+      const largeur = this.$refs.largeur.value
+      const hauteur = this.$refs.hauteur.value
+
       let index = 0
       for (let i = 0; i < 10; i++) {
         gameState[i] = {}
@@ -188,7 +244,6 @@ export default {
     },
     ClickOpenSpace(row, col) {
       if (row >= 0 && row <= 9 && col >= 0 && col <= 9) {
-        console.log(col)
         if (this.gameState[row][col].visited) {
           return
         }
@@ -202,37 +257,6 @@ export default {
             }
           }
         }
-
-        // for (let i = 0; i < 10; i++) {
-        //   for (let j = 0; j < 10; j++) {
-        //     if (this.gameState[i][j].visited) {
-        //       if (i > 0 && j > 0) {
-        //         ShowNumber(i - 1, j - 1, this.gameState[i - 1][j - 1].id)
-        //       }
-        //       if (i > 0) {
-        //         ShowNumber(i - 1, j, this.gameState[i - 1][j].id)
-        //       }
-        //       if (i > 0 && j < 9) {
-        //         ShowNumber(i - 1, j + 1, this.gameState[i - 1][j + 1].id)
-        //       }
-        //       if (j > 0) {
-        //         ShowNumber(i, j - 1, this.gameState[i][j - 1].id)
-        //       }
-        //       if (j < 9) {
-        //         ShowNumber(i, j + 1, this.gameState[i][j + 1].id)
-        //       }
-        //       if (i < 9 && j > 0) {
-        //         ShowNumber(i + 1, j - 1, this.gameState[i + 1][j - 1].id)
-        //       }
-        //       if (i < 9) {
-        //         ShowNumber(i + 1, j, this.gameState[i + 1][j].id)
-        //       }
-        //       if (i < 9 && j < 9) {
-        //         ShowNumber(i + 1, j + 1, this.gameState[i + 1][j + 1].id)
-        //       }
-        //     }
-        //   }
-        // }
       }
       return
     },
@@ -258,7 +282,7 @@ export default {
           cell.style.backgroundImage = `url(${ImgCase6})`
           break
       }
-    }
+    },
   }
 }
 </script>

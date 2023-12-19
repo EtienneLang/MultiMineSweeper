@@ -48,8 +48,7 @@ wsServer.on("request", (request) => {
             const gameId = message.gameId;
             const game = games[gameId];
             if (game.clients.length > 3) {
-                //TODO: envoyer un message d'erreur au client
-                console.log("Partie pleine");
+                return;
             }
             const color = { 0: "RED", 1: "GREEN", 2: "BLUE" }[
                 game.clients.length

@@ -7,10 +7,10 @@
     <button @click="CreateGame">Create game</button>
 
     <form>
-      <input ref="gameId" type="text" placeholder="GameId"/>
-
+      <input ref="gameId" type="text" placeholder="GameId" />
     </form>
     <button @click="JoinGame">Join game</button>
+    <div id="divPlayers"></div>
     <div class="container">
       <div id="grid"></div>
     </div>
@@ -27,12 +27,12 @@ import ImgCase3 from '../assets/img/Minesweeper_3.svg'
 import ImgCase4 from '../assets/img/Minesweeper_4.svg'
 import ImgCase5 from '../assets/img/Minesweeper_5.svg'
 import ImgCase6 from '../assets/img/Minesweeper_6.svg'
-
 const MINES_NUMBER = 10
 
-let clientId = null;
-let gameId = null;
-let ws = new WebSocket('ws://localhost:3000');
+let divPlayers = null
+let clientId = null
+let gameId = null
+let ws = new WebSocket('ws://localhost:3000')
 
 export default {
   name: 'GameView',
@@ -42,8 +42,7 @@ export default {
     }
   },
   created() {
-    ws.onmessage = message => {
-    
+    ws.onmessage = (message) => {
       const response = JSON.parse(message.data)
       console.log(response)
       if (response.action === 'connect') {
@@ -52,11 +51,35 @@ export default {
       }
       if (response.action === 'create') {
         gameId = response.game.gameId
-        console.log('Game created ' + response.game.gameId + 'with length ' + response.game.largeur + ' and height ' + response.game.hauteur)
+        console.log(
+          'Game created ' +
+            response.game.gameId +
+            'with length ' +
+            response.game.largeur +
+            ' and height ' +
+            response.game.hauteur
+        )
+      }
+      if (response.action === 'join') {
+        const game = response.game
+
+        while (divPlayers.firstChild) {
+          divPlayers.removeChild(divPlayers.firstChild)
+        }
+
+        game.clients.forEach((client) => {
+          const div = document.createElement('div')
+          div.style.width = '200px'
+          div.style.backgroundColor = client.color
+          div.textContent = client.clientId
+          divPlayers.appendChild(div)
+        })
       }
     }
   },
   mounted() {
+    divPlayers = document.getElementById('divPlayers')
+    console.log(divPlayers)
     this.CreateGameState()
     this.PlaceMines()
     this.PlaceNumbers()
@@ -282,7 +305,7 @@ export default {
           cell.style.backgroundImage = `url(${ImgCase6})`
           break
       }
-    },
+    }
   }
 }
 </script>

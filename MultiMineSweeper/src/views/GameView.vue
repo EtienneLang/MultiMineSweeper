@@ -29,6 +29,7 @@ import ImgCase5 from '../assets/img/Minesweeper_5.svg'
 import ImgCase6 from '../assets/img/Minesweeper_6.svg'
 import RedFlag from '../assets/img/Minesweeper_flag_red.svg'
 import BlueFlag from '../assets/img/Minesweeper_flag_blue.svg'
+import GreenFlag from '../assets/img/Minesweeper_flag_green.svg'
 const MINES_NUMBER = 10
 
 let divPlayers = null
@@ -149,7 +150,11 @@ export default {
             //Si la case n'est pas cliquée, on affiche le drapeau
             if (!this.gameState[i][j].isClicked) {
               if (!this.gameState[i][j].isFlag) {
-                cell.style.backgroundImage = `url(${RedFlag})`
+                if (this.userColor === 'RED') {
+                  cell.style.backgroundImage = `url(${RedFlag})`
+                } else if (this.userColor === 'BLUE') {
+                  cell.style.backgroundImage = `url(${BlueFlag})`
+                }
                 this.gameState[i][j].isFlag = true
               }
               //Si la case est déjà un drapeau, on l'enlève

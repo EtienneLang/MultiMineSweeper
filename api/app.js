@@ -47,10 +47,10 @@ wsServer.on("request", (request) => {
             const clientId = message.clientId;
             const gameId = message.gameId;
             const game = games[gameId];
-            if (game.clients.length > 3) {
+            if (game.clients.length > 2) {
                 return;
             }
-            const color = { 0: "RED", 1: "GREEN", 2: "BLUE" }[
+            const color = { 0: "RED", 1: "BLUE"}[
                 game.clients.length
             ];
             game.clients.push({

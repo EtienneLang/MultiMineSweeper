@@ -86,6 +86,10 @@ export default {
     this.CreateGrid()
   },
   methods: {
+    /**
+     * Fonction pour gèrer la création d'une partie et l'envoyer au websocket
+     * @param {*} e Event
+     */
     CreateGame(e) {
       const payload = {
         action: 'create',
@@ -96,6 +100,11 @@ export default {
       console.log(JSON.stringify(payload))
       ws.send(JSON.stringify(payload))
     },
+
+    /**
+     * Fonction pour gèrer la connexion à une partie et l'envoyer au websocket
+     * @param {*} e Event
+     */
     JoinGame(e) {
       console.log(clientId)
       if (!gameId) {
@@ -108,6 +117,10 @@ export default {
       }
       ws.send(JSON.stringify(payload))
     },
+
+    /**
+     * Fonction pour créer le plateau de jeu dans le HTML
+     */
     CreateGrid() {
       let grid = document.getElementById('grid')
       let index = 0
@@ -195,6 +208,10 @@ export default {
         }
       }
     },
+
+    /**
+     * Fonction pour créer le tableau de jeu (dictionnaire)
+     */
     CreateGameState() {
       let gameState = {}
       const largeur = this.$refs.largeur.value
@@ -209,6 +226,7 @@ export default {
             isFlag: false,
             isNumber: false,
             visited: false,
+            isClicked: false,
             id: index,
             number: 0
           }
@@ -217,6 +235,10 @@ export default {
       }
       this.gameState = gameState
     },
+
+    /**
+     * Fonction pour placer les mines aléatoirement sur le plateau
+     */
     PlaceMines() {
       let mines = 0
       while (mines < MINES_NUMBER) {
@@ -228,6 +250,10 @@ export default {
         }
       }
     },
+
+    /**
+     * Fonction pour placer les nombres sur les cases selon le nombre de mines autour
+     */
     PlaceNumbers() {
       for (let i = 0; i < 10; i++) {
         for (let j = 0; j < 10; j++) {
@@ -265,6 +291,12 @@ export default {
         }
       }
     },
+
+    /**
+     * Fonction récursive pour gérer le clique sur une case vide et monter tout la zone vide
+     * @param {*} row La ligne de la case
+     * @param {*} col La colonne de la case
+     */
     ClickOpenSpace(row, col) {
       if (row >= 0 && row <= 9 && col >= 0 && col <= 9) {
         if (this.gameState[row][col].visited) {
@@ -272,6 +304,7 @@ export default {
         }
         if (!this.gameState[row][col].isNumber && !this.gameState[row][col].isMine) {
           this.gameState[row][col].visited = true
+          this.gameState[row][col].isClicked = true
           document.getElementById(this.gameState[row][col].id).style.backgroundImage =
             `url(${ImgCaseClique})`
           for (let i = -1; i <= 1; i++) {
@@ -283,6 +316,13 @@ export default {
       }
       return
     },
+
+    /**
+     * Fonction pour mettre à jour l'image de la case en fonction du nombre
+     * @param {*} row La ligne de la case
+     * @param {*} col La colonne de la case
+     * @param {*} id L'id de la case
+     */
     ShowNumber(row, col, id) {
       let cell = document.getElementById(id)
       switch (this.gameState[row][col].number) {

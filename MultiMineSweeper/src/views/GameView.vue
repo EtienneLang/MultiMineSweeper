@@ -27,6 +27,8 @@ import ImgCase3 from '../assets/img/Minesweeper_3.svg'
 import ImgCase4 from '../assets/img/Minesweeper_4.svg'
 import ImgCase5 from '../assets/img/Minesweeper_5.svg'
 import ImgCase6 from '../assets/img/Minesweeper_6.svg'
+import RedFlag from '../assets/img/Minesweeper_flag_red.svg'
+import BlueFlag from '../assets/img/Minesweeper_flag_blue.svg'
 const MINES_NUMBER = 10
 
 let divPlayers = null
@@ -46,7 +48,8 @@ export default {
   name: 'GameView',
   data() {
     return {
-      gameState: {}
+      gameState: {},
+      userColor: null
     }
   },
   created() {
@@ -74,7 +77,7 @@ export default {
         while (divPlayers.firstChild) {
           divPlayers.removeChild(divPlayers.firstChild)
         }
-
+        this.userColor = game.clients.find((client) => client.clientId === clientId).color
         game.clients.forEach((client) => {
           const div = document.createElement('div')
           div.style.width = '200px'
@@ -139,9 +142,27 @@ export default {
           cell.id = index
           cell.dataset.row = i
           cell.dataset.col = j
+          // On gère le clique droit sur une case
+          cell.addEventListener('contextmenu', (event) => {
+            event.preventDefault()
+            
+            //Si la case n'est pas cliquée, on affiche le drapeau
+            if (!this.gameState[i][j].isClicked) {
+              if (!this.gameState[i][j].isFlag) {
+                cell.style.backgroundImage = `url(${RedFlag})`
+                this.gameState[i][j].isFlag = true
+              }
+              //Si la case est déjà un drapeau, on l'enlève
+              else {
+                cell.style.backgroundImage = `url(${ImgCaseNonClique})`
+                this.gameState[i][j].isFlag = false
+              }
+            }
+          })
+
           //Si la case est une mine, on affiche l'image de la mine au clique
           if (this.gameState[i][j].isMine) {
-            cell.onclick = function () {
+            cell.onclick = () => {
               cell.style.backgroundImage = `url(${ImgMine})`
             }
           }
@@ -151,12 +172,14 @@ export default {
               cell.style.backgroundImage = `url(${dicoImages[this.gameState[i][j].number]})`
               this.gameState[i][j].isClicked = true
             }
+            cell.right
           }
           //Si la case est vide, on affiche l'image de la case vide au clique
           else {
             cell.onclick = () => {
               this.ClickOpenSpace(i, j)
               this.gameState[cell.dataset.row][cell.dataset.col].isClicked = true
+              //on affiche les nombres autour de chaque case vide
               for (let i = 0; i < 10; i++) {
                 for (let j = 0; j < 10; j++) {
                   console.log(cell.dataset.row, cell.dataset.col)

@@ -33,7 +33,15 @@ let divPlayers = null
 let clientId = null
 let gameId = null
 let ws = new WebSocket('ws://localhost:3000')
-
+const dicoImages = {
+  0: ImgCaseClique,
+  1: ImgCase1,
+  2: ImgCase2,
+  3: ImgCase3,
+  4: ImgCase4,
+  5: ImgCase5,
+  6: ImgCase6
+}
 export default {
   name: 'GameView',
   data() {
@@ -129,48 +137,29 @@ export default {
           let cell = document.createElement('div')
           cell.className = 'cell'
           cell.id = index
+          cell.dataset.row = i
+          cell.dataset.col = j
+          //Si la case est une mine, on affiche l'image de la mine au clique
           if (this.gameState[i][j].isMine) {
             cell.onclick = function () {
               cell.style.backgroundImage = `url(${ImgMine})`
             }
-          } else if (this.gameState[i][j].isNumber) {
-            switch (this.gameState[i][j].number) {
-              case 1:
-                cell.onclick = function () {
-                  cell.style.backgroundImage = `url(${ImgCase1})`
-                }
-                break
-              case 2:
-                cell.onclick = function () {
-                  cell.style.backgroundImage = `url(${ImgCase2})`
-                }
-                break
-              case 3:
-                cell.onclick = function () {
-                  cell.style.backgroundImage = `url(${ImgCase3})`
-                }
-                break
-              case 4:
-                cell.onclick = function () {
-                  cell.style.backgroundImage = `url(${ImgCase4})`
-                }
-                break
-              case 5:
-                cell.onclick = function () {
-                  cell.style.backgroundImage = `url(${ImgCase5})`
-                }
-                break
-              case 6:
-                cell.onclick = function () {
-                  cell.style.backgroundImage = `url(${ImgCase6})`
-                }
-                break
+          }
+          //Si la case est un nombre, on affiche l'image du nombre au clique
+          else if (this.gameState[i][j].isNumber) {
+            cell.onclick = () => {
+              cell.style.backgroundImage = `url(${dicoImages[this.gameState[i][j].number]})`
+              this.gameState[i][j].isClicked = true
             }
-          } else {
+          }
+          //Si la case est vide, on affiche l'image de la case vide au clique
+          else {
             cell.onclick = () => {
               this.ClickOpenSpace(i, j)
+              this.gameState[cell.dataset.row][cell.dataset.col].isClicked = true
               for (let i = 0; i < 10; i++) {
                 for (let j = 0; j < 10; j++) {
+                  console.log(cell.dataset.row, cell.dataset.col)
                   if (this.gameState[i][j].visited) {
                     if (i > 0 && j > 0) {
                       this.ShowNumber(i - 1, j - 1, this.gameState[i - 1][j - 1].id)
@@ -325,26 +314,7 @@ export default {
      */
     ShowNumber(row, col, id) {
       let cell = document.getElementById(id)
-      switch (this.gameState[row][col].number) {
-        case 1:
-          cell.style.backgroundImage = `url(${ImgCase1})`
-          break
-        case 2:
-          cell.style.backgroundImage = `url(${ImgCase2})`
-          break
-        case 3:
-          cell.style.backgroundImage = `url(${ImgCase3})`
-          break
-        case 4:
-          cell.style.backgroundImage = `url(${ImgCase4})`
-          break
-        case 5:
-          cell.style.backgroundImage = `url(${ImgCase5})`
-          break
-        case 6:
-          cell.style.backgroundImage = `url(${ImgCase6})`
-          break
-      }
+      cell.style.backgroundImage = `url(${dicoImages[this.gameState[row][col].number]})`
     }
   }
 }
